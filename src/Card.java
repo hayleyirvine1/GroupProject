@@ -3,7 +3,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
-public class Card {
+public class Card{
     private String filename;
     private boolean isFlipped;
     private Graphics g;
