@@ -1,194 +1,177 @@
+import javax.swing.*;
 import java.awt.*;
+import java.util.Timer;
+import java.util.TimerTask;
+/**********************************************************************
+ * @file MemoryGame.java
+ * @brief Had some trouble with making both cards display and then disappear if they weren't the same picture
+ * @author Hayley Irvine, Jae Jang
+ * @date: 4/30
+ * @acknowledgement:  Cecilia Liu (CLASS Tutor) , Professor Pauca
+ ***********************************************************************/
 
-public class MemoryGame {
-    public static void main(String[] args) {
+public class MemoryGame { //Memory Game java class
 
-        DrawingPanel panel = new DrawingPanel(200, 300);
-        Graphics g = panel.getGraphics();
+    static int clicks = 0; //clicks start at 0
+    static Card firstCard = null; //null means that the firstCard isn't referencing any object
+    static int points = 0; //points start at 0 and only increase when the player gets a pair correctly
+    static DrawingPanel panel; //static variable panel
+    public static void main(String[] args) { //Main method
 
-        panel.onMouseClick( //where the user can click
-               (x, y) -> {
-                    onClick(g, x, y);
+        panel = new DrawingPanel(750, 600); //size of drawing board
+        Graphics g = panel.getGraphics(); //get graphics
+
+        int size = 150;//size of each square for the pictures
+
+        Card[][] table = createCardArray(g, size); //2D array of card objects
+
+        panel.onMouseClick( //a mouse click listener for the drawing panel
+                (x, y) -> {
+                    onClick(x, y, size, table); //call onClick method with parameters
                 }
         );
 
-        Card[][] table = createCardArray(g);
+        //displays all 20 cards with a sky background in front of all the pictures (call hide method from Card class)
 
-        System.out.println(table[0][0]); //calling  toString method
-        System.out.println(table[0][1]);
-        System.out.println(table[0][2]);
+        table[3][0].hide();
+        table[3][1].hide();
+        table[3][2].hide();
+        table[1][0].hide();
+        table[1][1].hide();
+        table[1][2].hide();
+        table[1][3].hide();
+        table[1][4].hide();
+        table[3][3].hide();
+        table[3][4].hide();
+        table[2][0].hide();
+        table[2][1].hide();
+        table[2][2].hide();
+        table[2][3].hide();
+        table[2][4].hide();
+        table[0][0].hide();
+        table[0][1].hide();
+        table[0][2].hide();
+        table[0][3].hide();
+        table[0][4].hide();
 
-        table[0][0].show(0, 0);
-        table[0][1].show(0, 1);
-
-
-    }
-
-    public static Card[][] createCardArray(Graphics g) {
-        Card[][] table = new Card[2][3]; //create array of cards
-
-        table[0][0] = new Card("Diamond.png", g);
-        table[0][1] = new Card("Diamond.png", g);
-        table[0][2] = new Card("Grin.png", g);
-        table[1][0] = new Card("Grin.png", g);
-        table[1][1] = new Card("SmileyFace.png", g);
-        table[1][2] = new Card("SmileyFace.png", g);
-
-        return table;
-    }
-
-    public static void onClick(Graphics g, int y, int x, table[][], int row, int col) { //where user can click
-        if (y >= 40 || y <= 80) { //size of each square
-            return;
-            row, col = map(x, y);
-            if (table[row][col].isFlipped()) {
-                return;
-            }
-            if (clicks % 2 == 0) {
-                table[row][col].show();
-                clicks++;
-                firstCard = table[row][col];
-                return;
-            } else (table[row][col].show()) {
-                if (table[row][col].equals(firstCard)) {
+        SwingUtilities.invokeLater(() -> {
+                    // Display a pop-up message asking "Play Game" with an "OK" button
+                    JOptionPane.showMessageDialog(null, "Welcome to the Memory Game!", "Play Game", JOptionPane.INFORMATION_MESSAGE);
                 }
+        );
+    }
 
-            }
+    /**
+     * Creates 2D array and sets a URL link for each card to display an image within scale
+     *   Otherwise it returns false.
+     * @param g : Graphics to display images
+     * @param size : int, size is set to 150
+     * @return :  Card[][] table of a size of 4 by 5
+     */
+
+    public static Card[][] createCardArray(Graphics g, int size) { //2D card array
+        Card[][] table = new Card[4][5]; //create array of cards
+
+        //sets a URL link for each location (row, col)
+        table[1][0] = new Card("https://static.vecteezy.com/system/resources/previews/006/867/628/non_2x/red-bullfinch-cartoon-bird-isolated-bright-winter-bullfinches-winter-bird-character-cartoon-illustration-vector.jpg", g, size, 1, 0);
+        table[2][4] = new Card("https://static.vecteezy.com/system/resources/previews/009/902/801/non_2x/a-small-cartoon-boat-with-a-red-flag-cartoon-design-of-water-transport-flat-illustration-isolated-on-a-white-background-vector.jpg", g, size, 2, 4);
+        table[1][2] = new Card("https://static.vecteezy.com/system/resources/previews/009/902/801/non_2x/a-small-cartoon-boat-with-a-red-flag-cartoon-design-of-water-transport-flat-illustration-isolated-on-a-white-background-vector.jpg", g, size, 1, 2);
+        table[3][3] = new Card("https://img.freepik.com/premium-vector/cute-dino-smiling-flat-cartoon-style_138676-2628.jpg", g, size, 3, 3);
+        table[1][4] = new Card("https://img.freepik.com/premium-vector/cute-dino-smiling-flat-cartoon-style_138676-2628.jpg", g, size, 1, 4);
+
+        table[2][0] = new Card("https://static.vecteezy.com/system/resources/previews/032/403/874/original/cute-whale-cartoon-illustration-cute-sea-animal-cartoon-vector.jpg", g, size, 2, 0);
+        table[3][4] = new Card("https://static.vecteezy.com/system/resources/previews/032/403/874/original/cute-whale-cartoon-illustration-cute-sea-animal-cartoon-vector.jpg", g, size, 3, 4);
+        table[3][0] = new Card("https://static.vecteezy.com/system/resources/previews/020/377/724/original/slice-of-watermelon-cartoon-food-fruit-isolated-on-white-background-vector.jpg", g, size, 3, 0);
+        table[2][3] = new Card("https://static.vecteezy.com/system/resources/previews/020/377/724/original/slice-of-watermelon-cartoon-food-fruit-isolated-on-white-background-vector.jpg", g, size, 2, 3);
+        table[1][3] = new Card("https://static.vecteezy.com/system/resources/previews/010/983/021/non_2x/tulip-flower-clip-art-outline-with-yellow-cute-color-animated-illustration-design-vector.jpg", g, size, 1, 3);
+
+        table[0][2] = new Card("https://static.vecteezy.com/system/resources/previews/025/162/179/original/sticker-style-fruit-bowl-mascot-on-yellow-background-vector.jpg", g, size, 0, 2);
+        table[3][1] = new Card("https://static.vecteezy.com/system/resources/previews/025/162/179/original/sticker-style-fruit-bowl-mascot-on-yellow-background-vector.jpg", g, size, 3, 1);
+        table[2][2] = new Card("https://static.vecteezy.com/system/resources/previews/006/867/628/non_2x/red-bullfinch-cartoon-bird-isolated-bright-winter-bullfinches-winter-bird-character-cartoon-illustration-vector.jpg", g, size, 2, 2);
+        table[2][1] = new Card("https://img.freepik.com/premium-vector/drink-cup-cute-icon-design_720392-15.jpg", g, size, 2, 1);
+        table[0][3] = new Card("https://img.freepik.com/premium-vector/drink-cup-cute-icon-design_720392-15.jpg", g, size, 0, 3);
+
+        table[0][0] = new Card("https://static.vecteezy.com/system/resources/previews/010/983/021/non_2x/tulip-flower-clip-art-outline-with-yellow-cute-color-animated-illustration-design-vector.jpg", g, size, 0, 0);
+        table[0][1] = new Card("https://img.freepik.com/premium-vector/cartoon-cat-with-pink-tail-sits-blue-background_828550-16.jpg", g, size, 0, 1);
+        table[3][2] = new Card("https://img.freepik.com/premium-vector/cartoon-cat-with-pink-tail-sits-blue-background_828550-16.jpg", g, size, 3, 2);
+        table[1][1] = new Card("https://i.pinimg.com/736x/63/6c/68/636c68f22725528fcf0b2e22299c2992.jpg", g, size, 1, 1);
+        table[0][4] = new Card("https://i.pinimg.com/736x/63/6c/68/636c68f22725528fcf0b2e22299c2992.jpg", g, size, 0, 4);
+
+        return table; //returns the 2D array table of type Card[][]
+    }
+
+    /**
+     * Creates 2D array and sets a URL link for each card to display an image within scale
+     *   Otherwise it returns false.
+     * @param x : x and y are used to declare row and column size for each space
+     * @param y :
+     * @param table : 2D array used to check the Cards that are clicked on
+     * @param size : int, size is set to 150
+     */
+    public static void onClick(int x, int y, int size, Card[][]table) { //perform certain things depending on where the user clicks and the amount of clicks
+
+        System.out.println("clicks = " + clicks); //print amount of clicks to the screen
+
+        int row = y / size; //declare row and col
+        int col = x / size;
+
+        System.out.println("row, col = " + row + ", " + col); //print the row and column to the console that the user clicked on
+
+        if (table[row][col].isFlipped()) { //if the user clicks on a card that has already been flipped
+            System.out.println("Clicked on a card that is flipped: Try again!"); //print statement to console
+            return; //exit
+        }
+        if (clicks % 2 == 0) { //when clicks is an even number
+            table[row][col].show(); //show the first card
+            clicks++; //increase clicks
+            firstCard = table[row][col]; //set firstCard equal to that row and col that was clicked
+            return; //exit
+
         }
 
 
+        table[row][col].show(); //when click = 1, flip the second card
+
+
+        if (table[row][col].equals(firstCard)) { //if the cards equal each other/have the same picture
+            points++; //increase points
+            System.out.println("Points: " + points); //display points in console
+
+            table[row][col].setFlip(); //set second card to true. User can't click on card again
+            firstCard.setFlip(); //set first card to true
+
+        }
+        if (points ==10){ //exit game if points = 10 and all pairs are found
+            System.out.println("Game Over!"); //print game over to the console
+            SwingUtilities.invokeLater(() -> {
+                        // Display a pop-up message asking "Play Game" with an "OK" button
+                        JOptionPane.showMessageDialog(null, "Game Over!", "Memory Game", JOptionPane.INFORMATION_MESSAGE); //print message to screen and have user click OK
+                        System.exit(0); //exit the game after the user clicks okay
+                    }
+            );
+
+        }
+
+
+        if (!table[row][col].equals(firstCard)) { //if the first card doesn't equal the second card
+            table[row][col].show(); // Show the second card
+
+            Timer timer = new Timer(); //create a timer object
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() { //create a method within the if statement
+
+                    // After 2 seconds, flip both cards back
+                    firstCard.hide(); //hide the first card
+                    table[row][col].hide();//hide the second card
+                    firstCard.resetFlip(); //reset the first card to false
+                    table[row][col].resetFlip();//reset the second card to false
+                    timer.cancel(); // Cancel the timer
+                }
+            }, 2000);//delay of 2 seconds
+        }
+
+        clicks++; //increase clicks
     }
+
 }
-
-
-
-//draw pictures on each card?
-//a class for each picture?
-//how to use client
-
-//chapter 3. supplement
-
-
-
-//clicks
-//turn = 1;
-//p1 score = 0
-//p2 = 0
-//another String array that has jpg (array filenames)
-//int array table pf size 4 x 4. have it shuffle
-//diamond shape = 0
-//square = 1
-//store numbers in table array
-
-
-//click on cards. is card already clicked
-//clicks = 0
-//card x, card y = map (x,y)// map method should return 1, 1,
-// row, col = map(x,y )
-//return -1,-1 if not clicking a card
-
-//if (card at row column, is open?) ignore it. return
-//know if it the first click or second click
-//if (clicks is even) then its the first card. then show card at row, col). then return, clicks++
-//states at (row, col) and turn it to true. return. prev_row = row. prev.col=col
-
-
-//else (show card at row, col) method
-//states[row][col] = true;
-//turn 2;
-
-//another method(compare if cards are the same)
-//method called match(row, col)(prevrow and prevcol)
-//if (table[row][col] ==table[prow][rcol]
-//if(turn ==1)
-//p1++
-//else(p2++1). hide method(row, col, prow, pcol). states == false
-
-//method called hide row and column
-
-//if all cards flipped game over. method
-
-//define a class
-//hide and show are methods within card class
-//card object.
-
-
-
-
-
-//Card.java: file name: String. isFlipped variable = false.
-// MemoryGame.java main() --> create table = Card array()
-//
-
-
-
-
-
-
-
-//show (row, col)--> table [row] [col]. show number 0, display diamond
-
-//show(row,col)
-//ind = table[row][col]
-//draw(row, col, filenames[ind])
-
-
-
-//array called states with table size
-//default value if its false--> its not flipped
-//if states at row col == true. return
-//
-
-//
-//
-//
-//
-//
-//
-//        //smiley face output
-//        Image smileyFace = panel.loadImage("smiley.png");
-//        Graphics g = panel.getGraphics();
-//        for(int i = 0; i < 4; i++){ //four in a row
-//            g.drawImage(smileyFace, i * 110 + 10, 10, panel);
-//        }
-//
-//
-//
-//
-//        DrawingPanel panel = new DrawingPanel(WIDTH, HEIGHT);
-//        Graphics g = panel.getGraphics();
-//
-//        drawBoard(g); //draw the board
-//
-//        panel.onMouseClick( //where the user can click
-//                (x, y) -> {
-//                    handelClick(g, x, y);
-//                }
-//        );
-//
-//        public static void handleClick(Graphics g, int y) { //where user can click
-//            //they can't click once a card is flipped
-//            if (y >= 40 || y <= 80) { //size of each square
-//                return;
-//            }
-//        }
-//
-//        public static void drawBaord(Graphics g, String [] board) { //draw board
-//            g.setColor(Color.BLACK);
-//
-//            //filled cards is boolean array (keeps track of cards that are flipped over)
-//            //filled cards are false
-//
-
-
-
-
-//draw cards
-
-//a method that shuffles the cards
-
-//method that finds pairs and increases points for both players
-
-//ask users if they want to customize their names (Scanner)
-
-
